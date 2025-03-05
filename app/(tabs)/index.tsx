@@ -11,10 +11,12 @@ import { ThemedView } from "@/components/ThemedView";
 import Push from "@/components/Push";
 import DataList from "@/components/DataList";
 import AddItemForm from "@/components/AddItemForm";
-import { fetchDataOnce } from "@/services/apiService";
+import { ApiService } from "@/services/apiService";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
+    const apiService = ApiService.getInstance();
+
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<Error | null>(null);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -24,11 +26,12 @@ export default function HomeScreen() {
         const initializeApp = async () => {
             try {
                 setLoading(true);
-                // Verificar conexión con la API
-                await fetchDataOnce("medicine");
+                await apiService.getCollection("medicine");
                 setError(null);
             } catch (err) {
-                setError(err instanceof Error ? err : new Error('Error de conexión'));
+                setError(
+                    err instanceof Error ? err : new Error("Error de conexión")
+                );
                 Alert.alert(
                     "Error de conexión",
                     "No se pudo conectar con la API local. Asegúrate de que tu servidor esté ejecutándose en http://localhost:5103"
@@ -46,21 +49,23 @@ export default function HomeScreen() {
         Alert.alert(
             item.name || "Detalle",
             `ID: ${item.id}\n${Object.entries(item)
-                .filter(([key]) => key !== 'id' && key !== 'name')
+                .filter(([key]) => key !== "id" && key !== "name")
                 .map(([key, value]) => `${key}: ${value}`)
-                .join('\n')}`
+                .join("\n")}`
         );
     };
 
     const handleAddSuccess = () => {
-        setRefreshKey(prev => prev + 1);
+        setRefreshKey((prev) => prev + 1);
     };
 
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#0000ff" />
-                <ThemedText style={styles.loadingText}>Conectando con la API local...</ThemedText>
+                <ThemedText style={styles.loadingText}>
+                    Conectando con la API local...
+                </ThemedText>
             </View>
         );
     }
@@ -69,10 +74,12 @@ export default function HomeScreen() {
         return (
             <View style={styles.errorContainer}>
                 <ThemedText style={styles.errorText}>
-                    No se pudo conectar con la API local en http://localhost:5103
+                    No se pudo conectar con la API local en
+                    http://localhost:5103
                 </ThemedText>
                 <ThemedText style={styles.errorSubtext}>
-                    Asegúrate de que tu servidor esté ejecutándose y sea accesible desde la aplicación.
+                    Asegúrate de que tu servidor esté ejecutándose y sea
+                    accesible desde la aplicación.
                 </ThemedText>
             </View>
         );
@@ -81,29 +88,40 @@ export default function HomeScreen() {
     return (
         <View style={styles.mainContainer}>
             <View style={styles.header}>
-                <ThemedText style={styles.title}>Gestión de Inventario</ThemedText>
-                <ThemedText style={styles.subtitle}>Conectado a: http://localhost:5103</ThemedText>
+                <ThemedText style={styles.title}>
+                    Gestión de Inventario
+                </ThemedText>
+                <ThemedText style={styles.subtitle}>
+                    Conectado a: http://localhost:5103
+                </ThemedText>
             </View>
-            
+
             <View style={styles.dataContainerWrapper}>
                 <View style={styles.dataHeader}>
                     <View style={styles.dataHeaderLeft}>
-                        <Ionicons name="list" size={22} color="#0066cc" style={styles.headerIcon} />
+                        <Ionicons
+                            name="list"
+                            size={22}
+                            color="#0066cc"
+                            style={styles.headerIcon}
+                        />
                         <ThemedText style={styles.dataTitle}>
                             Medicamentos
                         </ThemedText>
                     </View>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.addButton}
                         onPress={() => setIsAddModalVisible(true)}
                     >
                         <Ionicons name="add-circle" size={22} color="#ffffff" />
-                        <ThemedText style={styles.addButtonText}>Añadir</ThemedText>
+                        <ThemedText style={styles.addButtonText}>
+                            Añadir
+                        </ThemedText>
                     </TouchableOpacity>
                 </View>
-                
+
                 <ThemedView style={styles.dataContainer} key={refreshKey}>
-                    <DataList 
+                    <DataList
                         collectionName="medicine"
                         onItemPress={handleItemPress}
                         realtime={false}
@@ -111,8 +129,8 @@ export default function HomeScreen() {
                     />
                 </ThemedView>
             </View>
-            
-            <AddItemForm 
+
+            <AddItemForm
                 collectionName="medicine"
                 visible={isAddModalVisible}
                 onClose={() => setIsAddModalVisible(false)}
@@ -154,8 +172,8 @@ const styles = StyleSheet.create({
     },
     loadingContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: 20,
         backgroundColor: "#f8f9fa",
     },
@@ -166,21 +184,21 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: 20,
         backgroundColor: "#f8f9fa",
     },
     errorText: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#e74c3c',
-        textAlign: 'center',
+        fontWeight: "bold",
+        color: "#e74c3c",
+        textAlign: "center",
         marginBottom: 12,
     },
     errorSubtext: {
         fontSize: 15,
-        textAlign: 'center',
+        textAlign: "center",
         marginBottom: 24,
         color: "#7f8c8d",
         maxWidth: 300,
@@ -198,9 +216,9 @@ const styles = StyleSheet.create({
         overflow: "hidden",
     },
     dataHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderBottomWidth: 1,
@@ -208,20 +226,20 @@ const styles = StyleSheet.create({
         backgroundColor: "#fafafa",
     },
     dataHeaderLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
     },
     headerIcon: {
         marginRight: 8,
     },
     dataTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: "#2c3e50",
     },
     addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: "#0066cc",
         paddingVertical: 8,
         paddingHorizontal: 14,
@@ -229,8 +247,8 @@ const styles = StyleSheet.create({
     },
     addButtonText: {
         marginLeft: 6,
-        color: '#ffffff',
-        fontWeight: '600',
+        color: "#ffffff",
+        fontWeight: "600",
     },
     dataContainer: {
         flex: 1,
